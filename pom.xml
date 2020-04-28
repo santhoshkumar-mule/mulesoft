@@ -36,6 +36,7 @@
 			                <workerType>Micro</workerType>
 			                <applicationName>dataweave-service</applicationName>
 			                <muleVersion>4.2.2</muleVersion>
+			                <objectStoreV2>true</objectStoreV2>
 			</cloudHubDeployment>
 				</configuration>
 			</plugin>
