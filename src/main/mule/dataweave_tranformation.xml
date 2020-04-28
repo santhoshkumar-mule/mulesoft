@@ -10,7 +10,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	</http:listener-config>
 	<flow name="dataweave_tranformationFlow" doc:id="9c83a36e-7016-45b9-870c-4856dcd72432" >
 		<http:listener doc:name="Listener" doc:id="00da0be4-8d69-41fe-bfd3-8b7bd5fd58f1" config-ref="HTTP_Listener_config" path="/dataweave"/>
-		<logger level="INFO" doc:name="Logger" doc:id="047e9372-3473-4d60-8bd6-a6620b7e2515" message='#[payload ++ " not good"]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="047e9372-3473-4d60-8bd6-a6620b7e2515" message='#[payload ++ " not good source"]'/>
 		<ee:transform doc:name="Transform Message" doc:id="79f67aee-e12c-4f97-9d42-8de7022bca07" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
