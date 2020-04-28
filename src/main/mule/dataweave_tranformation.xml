@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="30e75421-76e0-4ea3-b80e-276ed90c369c" >
+		<http:listener-connection host="${http.host}" port="${http.port}" />
+	</http:listener-config>
+	<flow name="dataweave_tranformationFlow" doc:id="9c83a36e-7016-45b9-870c-4856dcd72432" >
+		<http:listener doc:name="Listener" doc:id="00da0be4-8d69-41fe-bfd3-8b7bd5fd58f1" config-ref="HTTP_Listener_config" path="/dataweave"/>
+		<logger level="INFO" doc:name="Logger" doc:id="047e9372-3473-4d60-8bd6-a6620b7e2515" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="79f67aee-e12c-4f97-9d42-8de7022bca07" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+
+ fun indexedData(data) = 
+ if (data is Object) 
+ 	data mapObject((value,key)->{ 
+ 		(key) : value
+ 	})
+ 	else 
+ 	 data
+ 	
+ output application/json
+ 
+---
+indexedData(payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dataweave_tranformationFlow1" doc:id="d39f5993-5602-44d9-b96e-46b27f80493c" >
+		<http:listener doc:name="Listener" doc:id="32840bdd-da0a-4a3c-8390-c47c2fc820e9" config-ref="HTTP_Listener_config" path="/conditional"/>
+		<ee:transform doc:name="Transform Message" doc:id="b434d619-7cca-40b2-93dd-f44acbd6b846" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{ 
+	matchAlertType: payload.*matchAlertType map((value,index)->{
+
+        (matchAlertType : value.matchAlertType) if(value.matchAlertType?)
+  
+})
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dataweave_merging" doc:id="a1187316-76ab-47cc-8868-59946a23064e" >
+		<http:listener doc:name="Listener" doc:id="53d56a0d-7128-4789-b3cd-8d33f33c394f" config-ref="HTTP_Listener_config" path="/merge"/>
+		<ee:transform doc:name="Transform Message" doc:id="86e18265-4605-4531-a3fc-caa704f882e1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ var finpt = [
+ {
+ 
+   "A.EMPLID": "12345678",
+ 
+   "H.FIRST_NAME": "ABCD",
+ 
+   }
+ 
+]
+ 
+var sInpt = [
+ 
+   {
+ 
+   "EMPLID": "12345678",
+ 
+   "DESCRLONG": "ABCDFRFFF xxxxxxxxxxxxxxxx"
+ 
+  }
+ 
+]
+
+ fun dec(data,fil) = data."DESCRLONG" filter(value,idex)->value.EMPLID == fil
+ ---
+ 
+ finpt map using(id = $."A.EMPLID") {
+    	
+    "A.EMPLID" : $."A.EMPLID",
+ 	"H.FIRST_NAME" : $."H.FIRST_NAME", 
+ 	 "DESCRLONG" : dec(sInpt,id)
+ 	 }
+ 	
+ 	
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="dataweave_tranformationFlow2" doc:id="75119f83-fb45-492a-ab3b-02bd734e1b2e" >
+		<http:listener doc:name="Listener" doc:id="9549d8b5-0fb7-4d6f-adc8-14654b25967d" config-ref="HTTP_Listener_config" path="/attributes"/>
+		<ee:transform doc:name="Transform Message" doc:id="bb7a2907-818a-4721-ad37-44b12d8a8e3e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[payload map ($ pluck $)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
