@@ -28,8 +28,18 @@
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
 				<configuration>
+							<cloudHubDeployment>
+							<username>gsanth143</username>
+							<password>@Warangal2020</password>
+							<environment>Sandbox</environment>
+			                <worker>1</worker>
+			                <workerType>Micro</workerType>
+			                <applicationName>dataweave-service</applicationName>
+			                <muleVersion>4.2.2</muleVersion>
+			</cloudHubDeployment>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
 
